@@ -27,8 +27,13 @@ jobs:
           pip install --upgrade pip setuptools wheel
           pip install "Cython<3.0.0" buildozer virtualenv
 
+      - name: Enable SDK License
+        run: |
+          sed -i 's/#android.accept_sdk_license = False/android.accept_sdk_license = True/g' buildozer.spec
+          sed -i 's/android.accept_sdk_license = False/android.accept_sdk_license = True/g' buildozer.spec
+
       - name: Build APK
-        run: yes | buildozer -v android debug
+        run: buildozer -v android debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
