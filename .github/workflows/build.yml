@@ -29,14 +29,23 @@ jobs:
 
       - name: Fix Buildozer Spec & Requirements
         run: |
-          # Otomatis setujui lisensi Android SDK
           sed -i 's/#android.accept_sdk_license = False/android.accept_sdk_license = True/g' buildozer.spec
           sed -i 's/android.accept_sdk_license = False/android.accept_sdk_license = True/g' buildozer.spec
-          
-          # Otomatis aktifkan requirements python3 dan kivy
           sed -i 's/#requirements = python3,kivy/requirements = python3,kivy/g' buildozer.spec
 
-      - name: Build APK
+      - name: First Build Pass (To download SDK)
+        run: |
+          buildozer -v android debug || true
+
+      - name: Force Accept All Android SDK Licenses
+        run: |
+          ANDROID_HOME="/home/runner/.buildozer/android/platform/android-sdk"
+          if [ -d "$ANDROID_HOME" ]; then
+            yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+            yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses || true
+          fi
+
+      - name: Final Build APK (Second Pass)
         run: buildozer -v android debug
 
       - name: Upload APK
