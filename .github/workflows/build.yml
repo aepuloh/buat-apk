@@ -27,21 +27,23 @@ jobs:
           pip install --upgrade pip setuptools wheel
           pip install Cython==0.29.33 buildozer virtualenv
 
-      - name: Fix Buildozer Spec (Lock NDK 25b)
+      - name: Fix Buildozer Spec (Sync Pythons)
         run: |
           dos2unix buildozer.spec
-          sed -i 's/#android.accept_sdk_license = False/android.accept_sdk_license = True/g' buildozer.spec
-          sed -i 's/android.accept_sdk_license = False/android.accept_sdk_license = True/g' buildozer.spec
-          sed -i 's/#requirements = python3,kivy/requirements = python3==3.11.8,kivy==2.3.0/g' buildozer.spec
-          sed -i 's/requirements = python3,kivy/requirements = python3==3.11.8,kivy==2.3.0/g' buildozer.spec
           
-          # Kunci API 33
-          sed -i 's/android.api =.*/android.api = 33/g' buildozer.spec
-          sed -i 's/#android.api =.*/android.api = 33/g' buildozer.spec
+          # Lisensi
+          sed -i 's/^#android.accept_sdk_license.*/android.accept_sdk_license = True/g' buildozer.spec
+          sed -i 's/^android.accept_sdk_license.*/android.accept_sdk_license = True/g' buildozer.spec
           
-          # KUNCI NDK 25b AGAR TIDAK ERROR (PENTING)
-          sed -i 's/android.ndk =.*/android.ndk = 25b/g' buildozer.spec
-          sed -i 's/#android.ndk =.*/android.ndk = 25b/g' buildozer.spec
+          # SINKRONISASI VERSI PYTHON (Ini yang mengatasi 3.11.8 != 3.14.2)
+          sed -i 's/^#requirements =.*/requirements = python3==3.11.8,hostpython3==3.11.8,kivy==2.3.0/g' buildozer.spec
+          sed -i 's/^requirements =.*/requirements = python3==3.11.8,hostpython3==3.11.8,kivy==2.3.0/g' buildozer.spec
+          
+          # API & NDK Stabil
+          sed -i 's/^android.api =.*/android.api = 33/g' buildozer.spec
+          sed -i 's/^#android.api =.*/android.api = 33/g' buildozer.spec
+          sed -i 's/^android.ndk =.*/android.ndk = 25b/g' buildozer.spec
+          sed -i 's/^#android.ndk =.*/android.ndk = 25b/g' buildozer.spec
 
       - name: Build APK
         run: yes | buildozer -v android debug
