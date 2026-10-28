@@ -20,25 +20,32 @@ jobs:
       - name: Install System Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential git ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev libffi-dev libssl-dev zip unzip openjdk-17-jdk autoconf libtool pkg-config dos2unix
+          sudo apt-get install -y build-essential git ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev libffi-dev libssl-dev zip unzip openjdk-17-jdk autoconf libtool pkg-config
           
       - name: Install Python Dependencies
         run: |
           pip install --upgrade pip setuptools wheel
-          pip install Cython==0.29.33 buildozer virtualenv
+          pip install "Cython<3.0.0" buildozer virtualenv
 
-      - name: Fix Buildozer Spec Format
+      - name: Fix Buildozer Spec (Locked Versions & API 33)
         run: |
-          dos2unix buildozer.spec
+          # Setujui lisensi SDK otomatis
           sed -i 's/#android.accept_sdk_license = False/android.accept_sdk_license = True/g' buildozer.spec
           sed -i 's/android.accept_sdk_license = False/android.accept_sdk_license = True/g' buildozer.spec
+          
+          # Kunci versi Python dan Kivy agar tidak terjadi bentrok hostpython
           sed -i 's/#requirements = python3,kivy/requirements = python3==3.11.8,kivy==2.3.0/g' buildozer.spec
           sed -i 's/requirements = python3,kivy/requirements = python3==3.11.8,kivy==2.3.0/g' buildozer.spec
+          
+          # Gunakan API 33 agar tidak menarik build-tools 37 yang error lisensi
           sed -i 's/android.api =.*/android.api = 33/g' buildozer.spec
           sed -i 's/#android.api =.*/android.api = 33/g' buildozer.spec
+          sed -i 's/android.minapi =.*/android.minapi = 21/g' buildozer.spec
+          sed -i 's/#android.minapi =.*/android.minapi = 21/g' buildozer.spec
 
-      - name: Build APK (Normal Mode)
-        run: buildozer -v android debug
+      - name: Build APK
+        run: |
+          yes | buildozer -v android debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
