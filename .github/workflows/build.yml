@@ -15,7 +15,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.11'
 
       - name: Install System Dependencies
         run: |
@@ -27,24 +27,24 @@ jobs:
           pip install --upgrade pip setuptools wheel
           pip install "Cython<3.0.0" buildozer virtualenv
 
-      - name: Fix Buildozer Spec (API 33 Stable)
+      - name: Configure Buildozer (Lock Python Version)
         run: |
           # Setujui lisensi SDK otomatis
           sed -i 's/#android.accept_sdk_license = False/android.accept_sdk_license = True/g' buildozer.spec
           sed -i 's/android.accept_sdk_license = False/android.accept_sdk_license = True/g' buildozer.spec
           
-          # Aktifkan requirements kivy
-          sed -i 's/#requirements = python3,kivy/requirements = python3,kivy/g' buildozer.spec
+          # KUNCI VERSI PYTHON DAN KIVY (Ini yang memperbaiki error cpython-314)
+          sed -i 's/#requirements = python3,kivy/requirements = python3==3.11.8,kivy==2.3.0/g' buildozer.spec
+          sed -i 's/requirements = python3,kivy/requirements = python3==3.11.8,kivy==2.3.0/g' buildozer.spec
           
-          # Turunkan ke API 33 agar tidak menarik build-tools 37 yang error
+          # Turunkan ke API 33 yang teruji stabil
           sed -i 's/android.api =.*/android.api = 33/g' buildozer.spec
           sed -i 's/#android.api =.*/android.api = 33/g' buildozer.spec
           sed -i 's/android.minapi =.*/android.minapi = 21/g' buildozer.spec
           sed -i 's/#android.minapi =.*/android.minapi = 21/g' buildozer.spec
 
       - name: Build APK
-        run: |
-          yes | buildozer -v android debug
+        run: yes | buildozer -v android debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
