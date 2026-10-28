@@ -22,12 +22,16 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y build-essential git ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev libffi-dev libssl-dev zip unzip openjdk-17-jdk autoconf libtool pkg-config dos2unix
           
-      - name: Install Python Dependencies
+      - name: Install Python Dependencies (Pin PIP & Buildozer Master)
         run: |
-          python -m pip install --upgrade pip setuptools wheel
-          python -m pip install "Cython==0.29.36" "virtualenv==20.26.2" buildozer
+          # 1. Kunci pip dan virtualenv ke versi lama agar tidak mengandung bug internal
+          python -m pip install --upgrade "pip<24.0" setuptools wheel
+          python -m pip install "Cython==0.29.36" "virtualenv<20.26.0"
+          
+          # 2. Install Buildozer langsung dari master branch Github (yang sudah di-patch)
+          python -m pip install git+https://github.com/kivy/buildozer.git@master
 
-      - name: Fix Buildozer Spec
+      - name: Fix Buildozer Spec (p4a Master)
         run: |
           dos2unix buildozer.spec
           
@@ -35,11 +39,15 @@ jobs:
           sed -i 's/^#android.accept_sdk_license.*/android.accept_sdk_license = True/g' buildozer.spec
           sed -i 's/^android.accept_sdk_license.*/android.accept_sdk_license = True/g' buildozer.spec
           
-          # Kembalikan requirements ke default tanpa dikunci (Saran Copilot)
+          # 3. Gunakan p4a branch master (Tambalan untuk masalah pip internal)
+          sed -i 's/^#p4a.branch =.*/p4a.branch = master/g' buildozer.spec
+          sed -i 's/^p4a.branch =.*/p4a.branch = master/g' buildozer.spec
+          
+          # Requirements
           sed -i 's/^#requirements =.*/requirements = python3,kivy/g' buildozer.spec
           sed -i 's/^requirements =.*/requirements = python3,kivy/g' buildozer.spec
           
-          # API dan NDK sesuai saran Copilot
+          # API dan NDK
           sed -i 's/^android.api =.*/android.api = 33/g' buildozer.spec
           sed -i 's/^#android.api =.*/android.api = 33/g' buildozer.spec
           sed -i 's/^android.minapi =.*/android.minapi = 24/g' buildozer.spec
