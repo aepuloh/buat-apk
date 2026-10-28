@@ -15,7 +15,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11.8'
+          python-version: '3.11'
 
       - name: Install System Dependencies
         run: |
@@ -24,30 +24,33 @@ jobs:
           
       - name: Install Python Dependencies
         run: |
-          # Perbaikan PIP diletakkan di sini, sisanya murni kode Anda
-          python -m pip install pip==23.3.2 virtualenv==20.24.5
-          pip install setuptools wheel Cython==0.29.33 buildozer
+          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install "Cython==0.29.36" "virtualenv==20.26.2" buildozer
 
-      - name: Fix Buildozer Spec (Sync Pythons)
+      - name: Fix Buildozer Spec
         run: |
           dos2unix buildozer.spec
           
-          # Lisensi
+          # Lisensi SDK
           sed -i 's/^#android.accept_sdk_license.*/android.accept_sdk_license = True/g' buildozer.spec
           sed -i 's/^android.accept_sdk_license.*/android.accept_sdk_license = True/g' buildozer.spec
           
-          # SINKRONISASI VERSI PYTHON (Ini yang mengatasi 3.11.8 != 3.14.2)
-          sed -i 's/^#requirements =.*/requirements = python3==3.11.8,hostpython3==3.11.8,kivy==2.3.0/g' buildozer.spec
-          sed -i 's/^requirements =.*/requirements = python3==3.11.8,hostpython3==3.11.8,kivy==2.3.0/g' buildozer.spec
+          # Kembalikan requirements ke default tanpa dikunci (Saran Copilot)
+          sed -i 's/^#requirements =.*/requirements = python3,kivy/g' buildozer.spec
+          sed -i 's/^requirements =.*/requirements = python3,kivy/g' buildozer.spec
           
-          # API & NDK Stabil
+          # API dan NDK sesuai saran Copilot
           sed -i 's/^android.api =.*/android.api = 33/g' buildozer.spec
           sed -i 's/^#android.api =.*/android.api = 33/g' buildozer.spec
+          sed -i 's/^android.minapi =.*/android.minapi = 24/g' buildozer.spec
+          sed -i 's/^#android.minapi =.*/android.minapi = 24/g' buildozer.spec
           sed -i 's/^android.ndk =.*/android.ndk = 25b/g' buildozer.spec
           sed -i 's/^#android.ndk =.*/android.ndk = 25b/g' buildozer.spec
 
       - name: Build APK
-        run: yes | buildozer -v android debug
+        run: |
+          rm -rf .buildozer bin
+          yes | buildozer -v android debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
