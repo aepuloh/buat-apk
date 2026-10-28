@@ -20,32 +20,31 @@ jobs:
       - name: Install System Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential git ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev libffi-dev libssl-dev zip unzip openjdk-17-jdk autoconf libtool pkg-config
+          sudo apt-get install -y build-essential git ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev libffi-dev libssl-dev zip unzip openjdk-17-jdk autoconf libtool pkg-config dos2unix
           
       - name: Install Python Dependencies
         run: |
           pip install --upgrade pip setuptools wheel
-          pip install "Cython<3.0.0" buildozer virtualenv
+          pip install Cython==0.29.33 buildozer virtualenv
 
-      - name: Fix Buildozer Spec (Locked Versions & API 33)
+      - name: Fix Buildozer Spec (Lock NDK 25b)
         run: |
-          # Setujui lisensi SDK otomatis
+          dos2unix buildozer.spec
           sed -i 's/#android.accept_sdk_license = False/android.accept_sdk_license = True/g' buildozer.spec
           sed -i 's/android.accept_sdk_license = False/android.accept_sdk_license = True/g' buildozer.spec
-          
-          # Kunci versi Python dan Kivy agar tidak terjadi bentrok hostpython
           sed -i 's/#requirements = python3,kivy/requirements = python3==3.11.8,kivy==2.3.0/g' buildozer.spec
           sed -i 's/requirements = python3,kivy/requirements = python3==3.11.8,kivy==2.3.0/g' buildozer.spec
           
-          # Gunakan API 33 agar tidak menarik build-tools 37 yang error lisensi
+          # Kunci API 33
           sed -i 's/android.api =.*/android.api = 33/g' buildozer.spec
           sed -i 's/#android.api =.*/android.api = 33/g' buildozer.spec
-          sed -i 's/android.minapi =.*/android.minapi = 21/g' buildozer.spec
-          sed -i 's/#android.minapi =.*/android.minapi = 21/g' buildozer.spec
+          
+          # KUNCI NDK 25b AGAR TIDAK ERROR (PENTING)
+          sed -i 's/android.ndk =.*/android.ndk = 25b/g' buildozer.spec
+          sed -i 's/#android.ndk =.*/android.ndk = 25b/g' buildozer.spec
 
       - name: Build APK
-        run: |
-          yes | buildozer -v android debug
+        run: yes | buildozer -v android debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
