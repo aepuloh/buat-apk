@@ -15,23 +15,20 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.11.8'
 
       - name: Install System Dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential git ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev libffi-dev libssl-dev zip unzip openjdk-17-jdk autoconf libtool pkg-config dos2unix
           
-      - name: Install Python Dependencies (Pin PIP & Buildozer Master)
+      - name: Install Python Dependencies
         run: |
-          # 1. Kunci pip dan virtualenv ke versi lama agar tidak mengandung bug internal
+          # Kunci pip dan virtualenv di server agar aman
           python -m pip install --upgrade "pip<24.0" setuptools wheel
-          python -m pip install "Cython==0.29.36" "virtualenv<20.26.0"
-          
-          # 2. Install Buildozer langsung dari master branch Github (yang sudah di-patch)
-          python -m pip install git+https://github.com/kivy/buildozer.git@master
+          python -m pip install "Cython==0.29.36" "virtualenv<20.26.0" buildozer
 
-      - name: Fix Buildozer Spec (p4a Master)
+      - name: Fix Buildozer Spec (Block Python 3.14)
         run: |
           dos2unix buildozer.spec
           
@@ -39,15 +36,16 @@ jobs:
           sed -i 's/^#android.accept_sdk_license.*/android.accept_sdk_license = True/g' buildozer.spec
           sed -i 's/^android.accept_sdk_license.*/android.accept_sdk_license = True/g' buildozer.spec
           
-          # 3. Gunakan p4a branch master (Tambalan untuk masalah pip internal)
+          # KUNCI PYTHON 3.11.8 (Mencegah tarikan otomatis versi 3.14 yang error)
+          # KITA TIDAK MEMASUKKAN 'hostpython3' AGAR TIDAK ERROR config.pxi SEPERTI DULU
+          sed -i 's/^#requirements =.*/requirements = python3==3.11.8,kivy==2.3.0/g' buildozer.spec
+          sed -i 's/^requirements =.*/requirements = python3==3.11.8,kivy==2.3.0/g' buildozer.spec
+          
+          # Gunakan python-for-android branch master untuk tambalan bug pip terbaru
           sed -i 's/^#p4a.branch =.*/p4a.branch = master/g' buildozer.spec
           sed -i 's/^p4a.branch =.*/p4a.branch = master/g' buildozer.spec
           
-          # Requirements
-          sed -i 's/^#requirements =.*/requirements = python3,kivy/g' buildozer.spec
-          sed -i 's/^requirements =.*/requirements = python3,kivy/g' buildozer.spec
-          
-          # API dan NDK
+          # API dan NDK Stabil
           sed -i 's/^android.api =.*/android.api = 33/g' buildozer.spec
           sed -i 's/^#android.api =.*/android.api = 33/g' buildozer.spec
           sed -i 's/^android.minapi =.*/android.minapi = 24/g' buildozer.spec
