@@ -1,7 +1,7 @@
-name: Build Android APK (Flet)
+name: Build Android APK (Flet Manual)
 
+# Hanya berjalan secara manual untuk menghemat kuota menit GitHub Actions
 on:
-  push:
   workflow_dispatch:
 
 jobs:
@@ -16,6 +16,14 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: 'pip'
+
+      - name: Setup Java (OpenJDK)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
 
       - name: Setup Flutter (Kunci Versi 3.22.2)
         uses: subosito/flutter-action@v2
@@ -23,13 +31,17 @@ jobs:
           # Kunci Flutter di versi ini agar sejajar dengan Flet 0.23.2 dan tidak menuntut Gradle baru
           flutter-version: '3.22.2'
           channel: 'stable'
+          cache: true
 
       - name: Install Flet (Versi Stabil)
-        run: pip install flet==0.23.2
+        run: |
+          pip install --upgrade pip
+          pip install flet==0.23.2 requests supabase
 
       - name: Build APK dengan Versi Otomatis
-        run: flet build apk --product "Gazeshop" --org "com.gazeshop.app" --build-version "1.0.${{ github.run_number }}" --build-number ${{ github.run_number }}
-
+        run: |
+          # Menggunakan yes | untuk bypass otomatis prompt konfirmasi pada flet build
+          yes | flet build apk --product "Gazeshop" --org "com.gazeshop.app" --build-version "1.0.${{ github.run_number }}" --build-number ${{ github.run_number }}
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
