@@ -10,7 +10,7 @@ workflows:
       - name: Install dependencies & Flet
         script: |
           pip install --upgrade pip
-          pip install flet==0.23.2 requests supabase
+          pip install flet==0.23.2 requests
       - name: Build APK Flet dengan Versi Otomatis
         script: |
           BUILD_NUM=$BUILD_NUMBER
