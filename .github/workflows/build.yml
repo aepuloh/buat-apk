@@ -1,6 +1,5 @@
 name: Build Android APK (Flet Manual)
 
-# Hanya berjalan secara manual untuk menghemat kuota menit GitHub Actions
 on:
   workflow_dispatch:
 
@@ -23,12 +22,11 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-          cache: 'gradle'
+          # Baris cache gradle dihapus agar tidak error mencari file gradle yang belum ada
 
       - name: Setup Flutter (Kunci Versi 3.22.2)
         uses: subosito/flutter-action@v2
         with:
-          # Kunci Flutter di versi ini agar sejajar dengan Flet 0.23.2 dan tidak menuntut Gradle baru
           flutter-version: '3.22.2'
           channel: 'stable'
           cache: true
@@ -40,12 +38,10 @@ jobs:
 
       - name: Build APK dengan Versi Otomatis
         run: |
-          # Menggunakan yes | untuk bypass otomatis prompt konfirmasi pada flet build
           yes | flet build apk --product "Gazeshop" --org "com.gazeshop.app" --build-version "1.0.${{ github.run_number }}" --build-number ${{ github.run_number }}
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          # Nama file ZIP unduhan dari GitHub Actions diubah menjadi Gazeshop-APK
           name: Gazeshop-APK
           path: build/apk/**/*.apk
