@@ -37,7 +37,8 @@ def LoginView(page: ft.Page):
                 error_text.value = "Email atau Password salah!"
                 page.update()
         except Exception as ex:
-            error_text.value = fTerjadi kesalahan: {ex}"
+            # PERBAIKAN: Menambahkan tanda kutip " setelah f
+            error_text.value = f"Terjadi kesalahan: {ex}"
             page.update()
 
     form_container = ft.Container(
