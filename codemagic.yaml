@@ -5,7 +5,6 @@ workflows:
     environment:
       flutter: stable
       vars:
-        # Menentukan versi dasar aplikasi Anda
         BASE_VERSION: "1.0"
     scripts:
       - name: Install dependencies & Flet
@@ -14,13 +13,12 @@ workflows:
           pip install --upgrade flet
       - name: Build APK Flet dengan Versi Otomatis
         script: |
-          # Nomor build otomatis akan bertambah berdasarkan build_number dari Codemagic
           BUILD_NUM=$BUILD_NUMBER
           VERSION_NAME="${BASE_VERSION}.${BUILD_NUM}"
           
           echo "Membuat APK untuk Versi: $VERSION_NAME (Build: $BUILD_NUM)"
           
-          # Perintah Flet build dengan menyertakan versi otomatis
-          flet build apk --product "Gazeshop" --org "com.gazeshop.app" --build-version "$VERSION_NAME" --build-number "$BUILD_NUM"
+          # Menggunakan perintah 'yes |' di depan agar otomatis menjawab 'y' (yes) pada prompt Flet
+          yes | flet build apk --product "Gazeshop" --org "com.gazeshop.app" --build-version "$VERSION_NAME" --build-number "$BUILD_NUM"
     artifacts:
       - build/apk/*.apk
