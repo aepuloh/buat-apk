@@ -22,7 +22,6 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-          # Baris cache gradle dihapus agar tidak error mencari file gradle yang belum ada
 
       - name: Setup Flutter (Kunci Versi 3.22.2)
         uses: subosito/flutter-action@v2
@@ -31,19 +30,15 @@ jobs:
           channel: 'stable'
           cache: true
 
-      - name: Install Flet (Versi Stabil)
+      - name: Install Flet (Versi Stabil) & Dependencies
         run: |
           pip install --upgrade pip
           pip install flet==0.23.2 requests supabase
 
       - name: Build APK dengan Versi Otomatis
         run: |
-          # Menggunakan printf 'y\n' agar tidak terjadi error broken pipe seperti pakai 'yes |'
+          # Menggunakan printf 'y\n' agar otomatis menyetujui prompt tanpa broken pipe
           printf 'y\n' | flet build apk --product "Gazeshop" --org "com.gazeshop.app" --build-version "1.0.${{ github.run_number }}" --build-number ${{ github.run_number }}
-
-      - name: Build APK dengan Versi Otomatis
-        run: |
-          yes | flet build apk --product "Gazeshop" --org "com.gazeshop.app" --build-version "1.0.${{ github.run_number }}" --build-number ${{ github.run_number }}
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
