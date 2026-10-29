@@ -27,9 +27,9 @@ jobs:
       - name: Install Flet (Versi Stabil)
         run: pip install flet==0.23.2
 
-      - name: Build APK (Ganti Nama Gazeshop)
-        # Tambahan --product dan --org untuk mengganti nama aplikasi dan ID paket
-        run: flet build apk --product "Gazeshop" --org "com.gazeshop.app"
+      - name: Build APK dengan Versi Otomatis
+        run: flet build apk --product "Gazeshop" --org "com.gazeshop.app" --build-version "1.0.${{ github.run_number }}" --build-number ${{ github.run_number }}
+
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
