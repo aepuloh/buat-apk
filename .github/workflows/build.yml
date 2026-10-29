@@ -34,7 +34,12 @@ jobs:
       - name: Install Flet (Versi Stabil)
         run: |
           pip install --upgrade pip
-          pip install flet==0.23.2 requests
+          pip install flet==0.23.2 requests supabase
+
+      - name: Build APK dengan Versi Otomatis
+        run: |
+          # Menggunakan printf 'y\n' agar tidak terjadi error broken pipe seperti pakai 'yes |'
+          printf 'y\n' | flet build apk --product "Gazeshop" --org "com.gazeshop.app" --build-version "1.0.${{ github.run_number }}" --build-number ${{ github.run_number }}
 
       - name: Build APK dengan Versi Otomatis
         run: |
