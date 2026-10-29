@@ -4,7 +4,6 @@ workflows:
     instance_type: mac_mini_m1
     environment:
       flutter: stable
-      python: 3.11
       vars:
         BASE_VERSION: "1.0"
     scripts:
