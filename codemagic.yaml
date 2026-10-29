@@ -4,13 +4,14 @@ workflows:
     instance_type: mac_mini_m1
     environment:
       flutter: stable
+      python: 3.11
       vars:
         BASE_VERSION: "1.0"
     scripts:
       - name: Install dependencies & Flet
         script: |
-          pip install flet requests supabase
-          pip install --upgrade flet
+          pip install --upgrade pip
+          pip install flet==0.23.2 requests supabase
       - name: Build APK Flet dengan Versi Otomatis
         script: |
           BUILD_NUM=$BUILD_NUMBER
@@ -18,7 +19,6 @@ workflows:
           
           echo "Membuat APK untuk Versi: $VERSION_NAME (Build: $BUILD_NUM)"
           
-          # Menggunakan perintah 'yes |' di depan agar otomatis menjawab 'y' (yes) pada prompt Flet
           yes | flet build apk --product "Gazeshop" --org "com.gazeshop.app" --build-version "$VERSION_NAME" --build-number "$BUILD_NUM"
     artifacts:
       - build/apk/*.apk
