@@ -15,33 +15,26 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-          cache: 'pip'
-
-      - name: Setup Java (OpenJDK)
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
 
       - name: Setup Flutter (Kunci Versi 3.22.2)
         uses: subosito/flutter-action@v2
         with:
+          # Kunci Flutter di versi ini agar sejajar dengan Flet 0.23.2 dan tidak menuntut Gradle baru
           flutter-version: '3.22.2'
           channel: 'stable'
-          cache: true
 
       - name: Install Flet (Versi Stabil) & Dependencies
         run: |
           pip install --upgrade pip
           pip install flet==0.23.2 requests supabase
 
-      - name: Build APK dengan Versi Otomatis
-        run: |
-          # Menggunakan printf 'y\n' agar otomatis menyetujui prompt tanpa broken pipe
-          printf 'y\n' | flet build apk --product "Gazeshop" --org "com.gazeshop.app" --build-version "1.0.${{ github.run_number }}" --build-number ${{ github.run_number }}
+      - name: Build APK (Ganti Nama Gazeshop)
+        # Tambahan --product dan --org untuk mengganti nama aplikasi dan ID paket
+        run: flet build apk --product "Gazeshop" --org "com.gazeshop.app"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
+          # Nama file ZIP unduhan dari GitHub Actions diubah menjadi Gazeshop-APK
           name: Gazeshop-APK
           path: build/apk/**/*.apk
