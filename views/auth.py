@@ -1,5 +1,5 @@
 import flet as ft
-from services.supabase_client import supabase
+from services.supabase_client import login_user, register_user
 
 def LoginView(page: ft.Page):
     email_input = ft.TextField(
@@ -25,19 +25,17 @@ def LoginView(page: ft.Page):
             return
 
         try:
-            # Mengecek data ke tabel users di Supabase
-            response = supabase.table("users").select("*").eq("email", email).eq("password", password).execute()
-            data = response.data
+            # Menggunakan fungsi REST API dari supabase_client.py
+            data = login_user(email, password)
             
             if data and len(data) > 0:
-                # Login sukses, simpan sesi sementara di page.session atau langsung ke beranda
+                # Login sukses
                 page.session.set("user_email", email)
                 page.go("/")
             else:
                 error_text.value = "Email atau Password salah!"
                 page.update()
         except Exception as ex:
-            # PERBAIKAN: Menambahkan tanda kutip " setelah f
             error_text.value = f"Terjadi kesalahan: {ex}"
             page.update()
 
@@ -90,24 +88,24 @@ def RegisterView(page: ft.Page):
     error_text = ft.Text("", color=ft.colors.RED_400, size=12)
 
     def handle_register(e):
+        nama = nama_input.value.strip()
         email = email_input.value.strip()
         password = password_input.value.strip()
         
-        if not email or not password:
+        if not email or not password or not nama:
             error_text.value = "Semua kolom wajib diisi!"
             page.update()
             return
 
         try:
-            # Memasukkan data baru ke tabel users Supabase dengan saldo awal 0
-            response = supabase.table("users").insert({
-                "email": email,
-                "password": password,
-                "saldo": 0
-            }).execute()
+            # Menggunakan fungsi REST API dari supabase_client.py
+            success = register_user(email, password, nama)
             
-            # Jika berhasil, arahkan kembali ke halaman login
-            page.go("/login")
+            if success:
+                page.go("/login")
+            else:
+                error_text.value = "Gagal mendaftar, silakan coba lagi."
+                page.update()
         except Exception as ex:
             error_text.value = f"Gagal mendaftar: {ex}"
             page.update()
