@@ -1,7 +1,7 @@
 import requests
 
-# URL dan Anon Key milik Anda
-SUPABASE_URL = "https://lonlgrhfpwqngogavzia.supabase.co"
+# URL SUDAH DIPERBAIKI (r, n, o diganti menjadi n, m, p)
+SUPABASE_URL = "https://lonlgnhfpwqmgpgavzia.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxvbmxnbmhmcHdxbWdwZ2F2emlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMyMzcyNTEsImV4cCI6MjEwODgxMzI1MX0.dTa1RMXClcyAfunW3RXk8XK080KZ2DfKhRWORN5A_UE"
 
 def get_headers():
